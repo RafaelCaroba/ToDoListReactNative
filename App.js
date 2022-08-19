@@ -1,20 +1,48 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function App() {
+import TodoList from './components/TodoList';
+import Form from './components/Form'
+import { TodoServices } from './Services/TodoServices';
+import React from 'react';
+
+export default class App extends React.Component {
+
+ state={
+    list:[]
+}
+ 
+async componentDidMount(){
+    const list = await TodoServices.list();
+    this.setState(list);
+  } 
+  
+add = async (text) =>{
+  const newItem = await TodoServices.create({text})
+  const list = [...this.state.list, newItem]
+  this.setState({list})
+}
+
+remove = async (item) =>{
+  await TodoServices.remove(item.id)
+  const list = this.state.list.filter(itemList => itemList.id !== item.id)
+  this.setState({list})
+
+}
+
+render(){
+  const{state} = this
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View style={this.styles.container}>
+      <Form onAdd={this.add}/>
+      <TodoList list={state.list} onRemove={this.remove}/>
+      <StatusBar style='auto'/>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    
   },
-});
+})}
